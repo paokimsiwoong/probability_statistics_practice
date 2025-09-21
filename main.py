@@ -1,6 +1,12 @@
 # from functools import lru_cache
 from functools import cache
 
+import numpy as np
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+
+import sys
+
 # @lru_cache(maxsize=None)
 # @@@ lru_cache의 메모리 사이즈를 제한하지 않을 경우(maxsize=None)는 그냥 메모리 사이즈 제한 없는 cache를 사용할 것
 @cache
@@ -47,12 +53,46 @@ def binomial_prob_less_than_and_equal(n: int, p: float, k: int):
 def main():
     print("Hello from probability-statistics-practice!")
 
-    for i in range(7):
-        print(f"P(X = {i}), given B(6, 0.4), is {binomial_probability(6, 0.4, i)}")
-        print(f"P(X <= {i}), given B(6, 0.4), is {binomial_prob_less_than_and_equal(6, 0.4, i)}")
+    # args = sys.argv[1:] # sys.argv[0]은 실행 스크립트의 이름 (main.py)
+    # @@@ flag를 제외한 argument들만 args에 저장
+    args = []
+    for arg in sys.argv[1:]:
+        if not arg.startswith("--"):
+            args.append(arg)
 
+    # print(args)
+    
+    if not args:
+        print("n, p not provided - will plot B(16,0.5) as default")
+        n = 16
+        p = 0.5
+    else:
+        try:
+            n = int(args[0])
+            p = float(args[1])
+        except Exception as e:
+            raise e
 
+    result = []
+    result_cum = [] 
 
+    for i in range(n+1):
+        cur = binomial_probability(n, p, i)
+        cur_cum = binomial_prob_less_than_and_equal(n, p, i)
+        # print(f"P(X = {i}), given B({n}, {p}), is {cur}")
+        # print(f"P(X <= {i}), given B({n}, {p}), is {cur_cum}")
+
+        result.append(cur)
+        result_cum.append(cur_cum)
+
+    fig = plt.figure()
+    ax1 = fig.add_subplot(121)
+    ax2 = fig.add_subplot(122)
+
+    ax1.bar([i for i in range(n+1)], result)
+    ax2.bar([i for i in range(n+1)], result_cum)
+
+    plt.show()
 
 if __name__ == "__main__":
     main()
